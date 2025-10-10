@@ -13,6 +13,7 @@ export class ProdutoRepository {
     );
     this.listaProdutos.push(novoProduto);
     return novoProduto;
+    
   }
 
   listar(): Produto[] {

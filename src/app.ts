@@ -37,7 +37,7 @@ AppDataSource.initialize().then(async => {
   // Routes
   app.use('/api/produtos', produtoRotas(produtoController));
   app.use('/api/pedidos', pedidoRotas(pedidoController));
-  app.use('/api/carro', carroRotas(carroController));
+  app.use('/api/carros', carroRotas(carroController));
 
   const PORT = 3000;
   app.listen(PORT, () => {

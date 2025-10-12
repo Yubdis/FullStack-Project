@@ -11,4 +11,10 @@ export class Produto {
     categoria?: Categoria;
     @Column("decimal")
     preco?: number;
-  }
+
+    constructor(id?: number, nome?: string, categoria?: Categoria, preco?: number) {
+    this.id = id;
+    this.nome = nome;
+    this.categoria = categoria;
+    this.preco = preco;
+  }}

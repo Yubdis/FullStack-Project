@@ -1,6 +1,7 @@
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Cliente } from "./Cliente";
 import { Produto } from "./Produto";
+import { Carro } from "./Carro";
 
 @Entity()
 export class Pedido {
@@ -10,7 +11,11 @@ export class Pedido {
     dataHora?: Date;
     @ManyToOne(()=> Cliente, (cliente) => cliente.pedidos)
     cliente?: Cliente;
-    @ManyToMany(()=>Produto)
+    @ManyToMany(() => Produto)
     @JoinTable()
     listaProdutos?: Produto[];
+
+    @ManyToMany(() => Carro)
+    @JoinTable()
+    listaCarros?: Carro[];
 }

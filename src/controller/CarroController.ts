@@ -1,49 +1,60 @@
 import { Request, Response } from "express";
 import { CarroService } from "../service/CarroService";
-import { AppDataSource } from "../data-source";
-import { Carro } from "../entity/Carro";
 
-const carroService = new CarroService(AppDataSource.getRepository(Carro));
+// const carroService = new CarroService(AppDataSource.getRepository(Carro));
 
 export class CarroController {
-  static async inserir(req: Request, res: Response) {
-    try {
-      const carro = await carroService.inserir(req.body);
-      res.status(201).json(carro);
-    } catch (err: any) {
-      res.status(err.id || 500).json({ msg: err.msg || "Erro ao inserir carro" });
-    }
+  private service: CarroService;
+
+  constructor(service: CarroService) {
+    this.service = service;
   }
 
-  static async listar(req: Request, res: Response) {
-    const carros = await carroService.listar();
+  inserir = async (req: Request, res: Response): Promise<void> => {
+    const { marca, modelo, ano, preco, quilometragem, cor, descricao, vendedor, categoria } = req.body;
+    try{
+        const newCarro = await this.service.inserir({ marca, modelo, ano, preco, quilometragem, cor, descricao, vendedor, categoria });
+        res.status(201).json(newCarro);
+    }
+    catch(err:any) {
+        res.status(err.id).json({ error: err.msg });
+    }
+  };
+
+  listar = async (_req: Request, res: Response): Promise<void> => {
+    const carros = await this.service.listar();
     res.json(carros);
-  }
+  };
 
-  static async buscarPorId(req: Request, res: Response) {
-    try {
-      const carro = await carroService.buscarPorId(Number(req.params.id));
-      res.json(carro);
+  buscarPorId = async (req: Request, res: Response): Promise<void> => {
+    const id = parseInt(req.params.id);
+    try{
+        const carro = await this.service.buscarPorId(id);
+        res.json(carro);
     } catch (err: any) {
-      res.status(err.id || 500).json({ msg: err.msg || "Carro não encontrado" });
+        res.status(err.id).json({ error: err.msg });
     }
-  }
+  };
 
-  static async atualizar(req: Request, res: Response) {
-    try {
-      const carro = await carroService.atualizar(Number(req.params.id), req.body);
-      res.json(carro);
-    } catch (err: any) {
-      res.status(err.id || 500).json({ msg: err.msg || "Erro ao atualizar carro" });
-    }
-  }
+  atualizar = async (req: Request, res: Response): Promise<void> => {
+    const id = parseInt(req.params.id);
+    const { marca, modelo, ano, preco, quilometragem, cor, descricao, vendedor, categoria } = req.body;
 
-  static async deletar(req: Request, res: Response) {
-    try {
-      const carro = await carroService.deletar(Number(req.params.id));
-      res.json(carro);
+    try{
+        const carroAtualizado = await this.service.atualizar(id, { marca, modelo, ano, preco, quilometragem, cor, descricao, vendedor, categoria });
+        res.json(carroAtualizado);
     } catch (err: any) {
-      res.status(err.id || 500).json({ msg: err.msg || "Erro ao deletar carro" });
+        res.status(err.id).json({ error: err.msg });
     }
-  }
+  };
+
+  deletar = async (req: Request, res: Response): Promise<void> => {
+    const id = parseInt(req.params.id);
+    try{
+        const produto = await this.service.deletar(id);
+        res.json(produto);
+    } catch (err: any) {
+        res.status(err.id).json({ error: err.msg });
+    }
+  };
 }

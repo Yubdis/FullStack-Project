@@ -3,9 +3,10 @@ import { Categoria } from "./entity/Categoria";
 import { Cliente } from "./entity/Cliente";
 import { Pedido } from "./entity/Pedido";
 import { Produto } from "./entity/Produto";
+import { Carro } from "./entity/Carro";
 
 export const AppDataSource = new DataSource({
-    type: "postgres",    
+    type: "postgres",
     host: "localhost",
     port: 5432,
     username: "postgres",
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
     synchronize: true,
     logging: true,
     // dropSchema: true, //adicionar se quiser limpar o banco
-    entities: [Produto, Categoria, Cliente, Pedido],
+    entities: [Produto, Categoria, Cliente, Pedido, Carro],
     subscribers: [],
     migrations: [],
 })

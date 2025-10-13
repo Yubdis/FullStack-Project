@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
-import { Cliente } from "./Cliente";
+import { User } from "./User";
 import { Categoria } from "./Categoria";
 
 @Entity()
@@ -20,8 +20,8 @@ export class Carro {
     cor?: string;
     @Column({ nullable: true })
     descricao?: string;
-    @ManyToOne(() => Cliente, (cliente) => cliente.id)
-    vendedor?: Cliente;
+    @ManyToOne(() => User, (user) => user.id)
+    vendedor?: User;
     @ManyToOne(() => Categoria, (categoria) => categoria.carros)
     categoria?: Categoria;
 }

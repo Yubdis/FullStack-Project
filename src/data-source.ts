@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
 import { Categoria } from "./entity/Categoria";
-import { Cliente } from "./entity/Cliente";
+import { User } from "./entity/User";
 import { Pedido } from "./entity/Pedido";
 import { Produto } from "./entity/Produto";
 import { Carro } from "./entity/Carro";
@@ -15,7 +15,7 @@ export const AppDataSource = new DataSource({
     synchronize: true,
     logging: true,
     // dropSchema: true, //adicionar se quiser limpar o banco
-    entities: [Produto, Categoria, Cliente, Pedido, Carro],
+    entities: [Produto, Categoria, User, Pedido, Carro],
     subscribers: [],
     migrations: [],
 })

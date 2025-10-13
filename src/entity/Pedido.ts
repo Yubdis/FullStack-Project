@@ -1,5 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Cliente } from "./Cliente";
+import { User } from "./User";
 import { Produto } from "./Produto";
 import { Carro } from "./Carro";
 
@@ -9,8 +9,8 @@ export class Pedido {
     id?: string;
     @Column('timestamp')
     dataHora?: Date;
-    @ManyToOne(()=> Cliente, (cliente) => cliente.pedidos)
-    cliente?: Cliente;
+    // @ManyToOne(()=> User, (user) => user.pedidos)
+    cliente?: User;
     @ManyToMany(() => Produto)
     @JoinTable()
     listaProdutos?: Produto[];

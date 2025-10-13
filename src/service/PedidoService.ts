@@ -8,17 +8,17 @@ export class PedidoService {
     this.repository = repository;
   }
 
-  async inserir(pedido: Pedido): Promise<Pedido> {    
+  async inserir(pedido: Pedido): Promise<Pedido> {
     if(!pedido.cliente || !pedido.listaProdutos || pedido.listaProdutos.length <=0 ) {
-        throw ({id: 400, msg: "Falta dados obrigatorios"});    
+        throw ({id: 400, msg: "Falta dados obrigatorios"});
     }
     pedido.dataHora = new Date();
     return await this.repository.save(pedido);
   }
 
   async listar(): Promise<Pedido[]> {
-    return await this.repository.find({ 
-        relations: { 
+    return await this.repository.find({
+        relations: {
             cliente: true
         }
     });
@@ -30,12 +30,12 @@ export class PedidoService {
             cliente: true,
             listaProdutos: true
         },
-        where: {        
+        where: {
             id: id
         }
     });
     if(!produto) {
-        throw ({id: 404, msg: "Produto nao encontrado"});    
+        throw ({id: 404, msg: "Produto nao encontrado"});
     }
     return produto;
   }

@@ -10,6 +10,9 @@ export class User {
     nome?: string;
     @Column()
     email?: string;
+    // password for login/authentication purposes
+    // @Column()
+    // password?: string
     // @Column()
     // vendedor?: boolean;
     // @Column()

@@ -18,7 +18,7 @@ export class VendaService {
 
   async buscarPorId(id: number): Promise<Venda> {
     const venda = await this.repository.findOne({ where: { id }, relations: ["carro", "comprador", "vendedor"] });
-    if (!venda) throw new Error("Venda não encontrada");
+    if (!venda) throw { code: 404, message: "Venda não encontrada" };
     return venda;
   }
 }

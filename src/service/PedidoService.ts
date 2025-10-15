@@ -9,8 +9,8 @@ export class PedidoService {
   }
 
   async inserir(pedido: Pedido): Promise<Pedido> {
-    if(!pedido.cliente || !pedido.listaProdutos || pedido.listaProdutos.length <=0 ) {
-        throw ({id: 400, msg: "Falta dados obrigatorios"});
+    if (!pedido.cliente || !pedido.listaProdutos || pedido.listaProdutos.length <= 0) {
+      throw { code: 400, message: "Falta dados obrigatórios" };
     }
     pedido.dataHora = new Date();
     return await this.repository.save(pedido);

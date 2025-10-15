@@ -16,6 +16,10 @@ import { User } from './entity/User';
 import { userRotas } from './routes/UserRouter';
 import { UserController } from './controller/UserController';
 import { UserService } from './service/UserService';
+import { Venda } from "./entity/Venda";
+import { VendaService } from "./service/VendaService";
+import { VendaController } from "./controller/VendaController";
+import { vendaRotas } from "./routes/VendaRouter";
 
 AppDataSource.initialize().then(async => {
   const app = express();
@@ -37,15 +41,22 @@ AppDataSource.initialize().then(async => {
   const carroService = new CarroService(carroRepository);
   const carroController = new CarroController(carroService);
 
+  //User
   const userRepository = AppDataSource.getRepository(User);
   const userService = new UserService(userRepository);
   const userController = new UserController(userService);
+
+  //Venda
+  const vendaRepository = AppDataSource.getRepository(Venda);
+  const vendaService = new VendaService(vendaRepository);
+  const vendaController = new VendaController(vendaService);
 
   // Routes
   app.use('/api/produtos', produtoRotas(produtoController));
   app.use('/api/pedidos', pedidoRotas(pedidoController));
   app.use('/api/carros', carroRotas(carroController));
   app.use('/api/users', userRotas(userController));
+  app.use("/api/vendas", vendaRotas(vendaController));
 
   const PORT = 3000;
   app.listen(PORT, () => {

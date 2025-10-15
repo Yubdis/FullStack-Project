@@ -4,6 +4,7 @@ import { User } from "./entity/User";
 import { Pedido } from "./entity/Pedido";
 import { Produto } from "./entity/Produto";
 import { Carro } from "./entity/Carro";
+import { Venda } from "./entity/Venda";
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
     synchronize: true,
     logging: true,
     // dropSchema: true, //adicionar se quiser limpar o banco
-    entities: [Produto, Categoria, User, Pedido, Carro],
+    entities: [Produto, Categoria, User, Pedido, Carro, Venda],
     subscribers: [],
     migrations: [],
 })

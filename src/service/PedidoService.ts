@@ -19,7 +19,9 @@ export class PedidoService {
   async listar(): Promise<Pedido[]> {
     return await this.repository.find({
         relations: {
-            cliente: true
+            cliente: true,
+            listaProdutos: true,
+            listaCarros: true
         }
     });
   }
@@ -28,14 +30,15 @@ export class PedidoService {
     let produto = await this.repository.findOne({
         relations: {
             cliente: true,
-            listaProdutos: true
+            listaProdutos: true,
+            listaCarros: true
         },
         where: {
             id: id
         }
     });
     if(!produto) {
-        throw ({id: 404, msg: "Produto nao encontrado"});
+        throw ({id: 404, msg: "Pedido nao encontrado"});
     }
     return produto;
   }

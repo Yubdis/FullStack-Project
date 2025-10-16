@@ -25,7 +25,35 @@ services:
     volumes:
       - ./data/pgadmin:/var/lib/pgadmin
 
-networks:
-  default:
-    name: local-network
-    external: true
+# networks:
+#   default:
+#     name: local-network
+#     external: true
+# version: '3.8'
+# services:
+#   db:
+#     image: postgres:17
+#     restart: always
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: api_ecommerce
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - pgdata:/var/lib/postgresql/data
+
+#   app:
+#     build: .
+#     depends_on:
+#       - dcs-postgres
+#     ports:
+#       - "3000:3000"
+#     environment:
+#       DB_HOST: dcs-postgres
+#       DB_PORT: 5432
+#       DB_USER: postgres
+#       DB_PASSWORD: password
+#       DB_NAME: api_ecommerce
+# volumes:
+#   pgdata:

@@ -16,11 +16,11 @@ export class UserService {
   }
 
   async listar(): Promise<User[]> {
-    return await this.repository.find({ relations: ['vendedor'] });
+    return await this.repository.find(); 
   }
 
   async buscarPorId(id: number): Promise<User> {
-    let user = await this.repository.findOne({ where: { id }, relations: ['vendedor'] });
+    let user = await this.repository.findOne({ where: { id } });
     if(!user) {
         throw ({id: 404, msg: "User nao encontrado"});
     }

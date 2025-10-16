@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import { Categoria } from "./entity/Categoria";
+// import { Categoria } from "./entity/Categoria";
 import { User } from "./entity/User";
 import { Pedido } from "./entity/Pedido";
 import { Produto } from "./entity/Produto";
@@ -11,12 +11,11 @@ export const AppDataSource = new DataSource({
     host: "localhost",
     port: 5432,
     username: "postgres",
-    password: "password",
+    password:  "password",
     database: "api_ecommerce",
     synchronize: true,
     logging: true,
-    // dropSchema: true, //adicionar se quiser limpar o banco
-    entities: [Produto, Categoria, User, Pedido, Carro, Venda],
+    entities: [Produto, User, Pedido, Carro, Venda],
     subscribers: [],
     migrations: [],
-})
+});

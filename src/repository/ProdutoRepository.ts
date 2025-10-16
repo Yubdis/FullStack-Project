@@ -8,12 +8,12 @@ export class ProdutoRepository {
     const novoProduto = new Produto(
       this.proximoId++,
       produto.nome,
-      produto.categoria,
+      // produto.categoria,
       produto.preco
     );
     this.listaProdutos.push(novoProduto);
     return novoProduto;
-    
+
   }
 
   listar(): Produto[] {
@@ -31,7 +31,7 @@ export class ProdutoRepository {
     const produtoAtualizado = new Produto(
       id,
       produto.nome,
-      produto.categoria,
+      // produto.categoria,
       produto.preco
     );
     this.listaProdutos[index] = produtoAtualizado;

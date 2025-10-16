@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Categoria } from "./Categoria";
+// import { Categoria } from "./Categoria";
 
 @Entity()
 export class Produto {
@@ -7,14 +7,14 @@ export class Produto {
     id?: number;
     @Column()
     nome?: string;
-    @ManyToOne(() => Categoria, (categoria) => categoria.produtos, {eager: true})
-    categoria?: Categoria;
+    // @ManyToOne(() => Categoria, (categoria) => categoria.produtos, {eager: true})
+    // categoria?: Categoria;
     @Column("decimal")
     preco?: number;
 
-    constructor(id?: number, nome?: string, categoria?: Categoria, preco?: number) {
+    constructor(id?: number, nome?: string, preco?: number) {
     this.id = id;
     this.nome = nome;
-    this.categoria = categoria;
+    // this.categoria = categoria;
     this.preco = preco;
   }}

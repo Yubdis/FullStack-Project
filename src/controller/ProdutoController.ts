@@ -9,9 +9,9 @@ export class ProdutoController {
   }
 
   inserir = async (req: Request, res: Response): Promise<void> => {
-    const { nome, categoria, preco } = req.body;
-    try{ 
-        const newProduct = await this.service.inserir({ nome, categoria, preco });
+    const { nome, preco } = req.body;
+    try{
+        const newProduct = await this.service.inserir({ nome, preco });
         res.status(201).json(newProduct);
     }
     catch(err:any) {
@@ -26,7 +26,7 @@ export class ProdutoController {
 
   buscarPorId = async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(req.params.id);
-    try{ 
+    try{
         const produto = await this.service.buscarPorId(id);
         res.json(produto);
     } catch (err: any) {
@@ -36,10 +36,10 @@ export class ProdutoController {
 
   atualizar = async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(req.params.id);
-    const { nome, categoria, preco } = req.body;
+    const { nome, preco } = req.body;
 
-    try{ 
-        const produtoAtualizado = await this.service.atualizar(id, { nome, categoria, preco });
+    try{
+        const produtoAtualizado = await this.service.atualizar(id, { nome, preco });
         res.json(produtoAtualizado);
     } catch (err: any) {
         res.status(err.id).json({ error: err.msg });
@@ -48,7 +48,7 @@ export class ProdutoController {
 
   deletar = async (req: Request, res: Response): Promise<void> => {
     const id = parseInt(req.params.id);
-    try{ 
+    try{
         const produto = await this.service.deletar(id);
         res.json(produto);
     } catch (err: any) {

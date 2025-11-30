@@ -1,2 +1,4 @@
 /node_modules
+/uploads
+/my-uploads
 package-lock.json

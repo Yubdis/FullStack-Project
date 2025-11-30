@@ -37,4 +37,7 @@ export class Carro {
 
     @OneToMany(() => Venda, (venda) => venda.carro)
     vendas?: Venda[];
+
+    @Column({ nullable: true })
+    imagem?: string;
 }

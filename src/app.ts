@@ -1,9 +1,10 @@
-import express from 'express';
+import path from "path";
+import express from "express";
+import { AppDataSource } from "./data-source";
+import { Produto } from './entity/Produto';
 import { ProdutoService } from './service/ProdutoService';
 import { ProdutoController } from './controller/ProdutoController';
 import { produtoRotas } from './routes/ProdutoRouter';
-import { AppDataSource } from './data-source';
-import { Produto } from './entity/Produto';
 import { Pedido } from './entity/Pedido';
 import { PedidoService } from './service/PedidoService';
 import { PedidoController } from './controller/PedidoController';
@@ -21,9 +22,12 @@ import { VendaService } from "./service/VendaService";
 import { VendaController } from "./controller/VendaController";
 import { vendaRotas } from "./routes/VendaRouter";
 
-AppDataSource.initialize().then(async => {
+AppDataSource.initialize().then(async () => {
   const app = express();
   app.use(express.json());
+
+  // serve uploaded files
+  app.use("/uploads", express.static(path.join(process.cwd(), "public", "uploads")));
 
   // Initialize dependencies
   //Produto
@@ -57,9 +61,10 @@ AppDataSource.initialize().then(async => {
   app.use('/api/carros', carroRotas(carroController));
   app.use('/api/users', userRotas(userController));
   app.use("/api/vendas", vendaRotas(vendaController));
+  app.use("/api/carro", carroRotas(carroController));
 
   const PORT = 3000;
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
-});
+}).catch(err => console.error("DataSource init error:", err));

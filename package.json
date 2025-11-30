@@ -13,12 +13,14 @@
   },
   "dependencies": {
     "express": "^4.21.2",
+    "multer": "^2.0.2",
     "pg": "^8.15.5",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.22"
   },
   "devDependencies": {
     "@types/express": "^4.17.23",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.19.21",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",

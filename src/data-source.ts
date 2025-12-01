@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
     port: 5432,
     username: "postgres",
     password:  "password",
-    database: "api_ecommerce",
+    database: "carhome",
     synchronize: true,
     logging: true,
     entities: [Produto, User, Pedido, Carro, Venda],

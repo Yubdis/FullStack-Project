@@ -12,6 +12,7 @@
     "dev": "nodemon src/app.ts --exec ts-node"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "multer": "^2.0.2",
     "pg": "^8.15.5",
@@ -19,6 +20,7 @@
     "typeorm": "^0.3.22"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.23",
     "@types/multer": "^2.0.0",
     "@types/node": "^20.19.21",

@@ -22,6 +22,33 @@ import { VendaService } from "./service/VendaService";
 import { VendaController } from "./controller/VendaController";
 import { vendaRotas } from "./routes/VendaRouter";
 
+async function waitForDatabase(retries = 10, delay = 3000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            console.log(`🔄 Tentando conectar ao banco... (tentativa ${i + 1}/${retries})`);
+            await AppDataSource.initialize();
+            console.log("✅ Banco de dados conectado!");
+            return true;
+        } catch (error) {
+            console.log(`⏳ Aguardando banco ficar pronto... (${delay/1000}s)`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    throw new Error("❌ Não foi possível conectar ao banco após várias tentativas");
+}
+
+waitForDatabase()
+    .then(() => {
+        const app = express();
+        app.use(cors());
+        app.listen(3000, () => {
+            console.log("🚀 Servidor rodando na porta 3000");
+        });
+    })
+    .catch(error => {
+        console.error(error.message);
+        process.exit(1);
+    });
 
 AppDataSource.initialize().then(async => {
   const app = express();

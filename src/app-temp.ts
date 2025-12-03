@@ -1,4 +1,4 @@
-// src/app-temp.ts - BACKEND TEMPORÁRIO COMPLETO
+// src/app-temp.ts - USE ANY PARA SIMPLIFICAR
 import express from "express";
 import cors from "cors";
 import path from "path";
@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Dados mock de usuários
+// ========== DADOS MOCK ==========
 const usuariosMock = [
     { id: 1, nome: "João Silva", email: "joao@email.com" },
     { id: 2, nome: "Maria Santos", email: "maria@email.com" },
@@ -17,40 +17,6 @@ const usuariosMock = [
     { id: 5, nome: "Roberto Almeida", email: "roberto@email.com" }
 ];
 
-const __dirname = path.resolve(); // Pega o diretório atual
-
-// ✅ TENTE ESTES CAMINHOS (um por um):
-
-// Opção A: Caminho relativo a partir de onde o app é executado
-const uploadsPath = path.join(__dirname, 'public', 'uploads');
-console.log('📁 Tentando acessar:', uploadsPath)
-
-if (fs.existsSync(uploadsPath)) {
-    console.log('✅ Pasta encontrada:', uploadsPath);
-    app.use('/uploads', express.static(uploadsPath));
-} else {
-    console.error('❌ Pasta NÃO encontrada:', uploadsPath);
-    
-    // Crie a pasta para teste
-    fs.mkdirSync(uploadsPath, { recursive: true });
-    console.log('📁 Pasta criada:', uploadsPath);
-    
-    // Crie um arquivo de teste
-    const testImage = path.join(uploadsPath, 'teste.txt');
-    fs.writeFileSync(testImage, 'Arquivo de teste');
-    app.use('/uploads', express.static(uploadsPath));
-}
-
-// Rota de teste
-app.get('/test-upload', (req, res) => {
-    res.json({
-        caminho: uploadsPath,
-        existe: fs.existsSync(uploadsPath),
-        arquivos: fs.existsSync(uploadsPath) ? fs.readdirSync(uploadsPath) : []
-    });
-});
-
-// Dados mock de carros
 const carrosMock = [
     {
         id: 1,
@@ -102,54 +68,174 @@ const carrosMock = [
     }
 ];
 
-// ========== ROTAS DA API ==========
+// ========== CONFIGURAÇÃO DE ARQUIVOS ESTÁTICOS ==========
+const __dirname = path.resolve();
+const uploadsPath = path.join(__dirname, 'public', 'uploads');
 
-// GET - Listar todos os carros
-app.get("/api/carros", (req, res) => {
+if (fs.existsSync(uploadsPath)) {
+    console.log('✅ Pasta uploads encontrada:', uploadsPath);
+    app.use('/uploads', express.static(uploadsPath));
+} else {
+    console.log('📁 Criando pasta uploads:', uploadsPath);
+    fs.mkdirSync(uploadsPath, { recursive: true });
+    app.use('/uploads', express.static(uploadsPath));
+}
+
+// ========== AUTENTICAÇÃO ==========
+const sessoes: { [key: string]: number } = {}; // token -> userId
+
+// Middleware de autenticação
+const autenticar = (req: any, res: any, next: any) => {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!token || !sessoes[token]) {
+        return res.status(401).json({ error: "Não autorizado" });
+    }
+    
+    req.userId = sessoes[token];
+    next();
+};
+
+// ========== ROTAS PÚBLICAS ==========
+
+// Saúde da API
+app.get("/", (req: any, res: any) => {
+    res.json({ 
+        message: "🚗 API CarHome funcionando!",
+        status: "online",
+        carros_cadastrados: carrosMock.length,
+        usuarios_cadastrados: usuariosMock.length,
+        endpoints: {
+            "GET /api/carros": "Listar todos os carros",
+            "GET /api/carros/:id": "Buscar carro por ID",
+            "POST /api/carros": "Cadastrar novo carro (autenticado)",
+            "PUT /api/carros/:id": "Atualizar carro (autenticado)",
+            "DELETE /api/carros/:id": "Remover carro (autenticado)",
+            "POST /api/login": "Login/Registro",
+            "GET /api/usuarios": "Listar usuários"
+        }
+    });
+});
+
+// Login/Registro
+app.post("/api/login", (req: any, res: any) => {
+    const { email, nome } = req.body;
+    console.log("🔐 Login attempt:", { email, nome });
+    
+    let usuario = usuariosMock.find(u => u.email === email);
+    
+    if (!usuario) {
+        const novoId = usuariosMock.length + 1;
+        usuario = { id: novoId, nome, email };
+        usuariosMock.push(usuario);
+        console.log("👤 Novo usuário criado:", usuario);
+    }
+    
+    const token = `token-${Date.now()}-${usuario.id}`;
+    sessoes[token] = usuario.id;
+    
+    res.json({
+        success: true,
+        token,
+        usuario: {
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email
+        }
+    });
+});
+
+// ========== ROTAS DE CARROS ==========
+
+// Listar todos os carros
+app.get("/api/carros", (req: any, res: any) => {
     console.log("📦 GET /api/carros - Enviando", carrosMock.length, "carros");
     res.json(carrosMock);
 });
 
-// POST - Cadastrar novo carro
-app.post("/api/carros", (req, res) => {
-    console.log("📝 POST /api/carros - Recebido:", req.body);
+// Buscar carro por ID
+app.get("/api/carros/:id", (req: any, res: any) => {
+    const carroId = parseInt(req.params.id);
+    console.log(`🔍 GET /api/carros/${carroId} solicitado`);
     
-    const { marca, modelo, ano, preco, quilometragem, cor, descricao, vendedor, imagem } = req.body;
+    const carro = carrosMock.find(c => c.id === carroId);
     
-    // Validação básica
-    if (!marca || !modelo || !ano || !preco || !quilometragem || !cor || !vendedor) {
-        return res.status(400).json({ error: "Campos obrigatórios faltando" });
+    if (!carro) {
+        console.log(`❌ Carro ID ${carroId} não encontrado`);
+        return res.status(404).json({ error: "Carro não encontrado" });
     }
     
-    // Verificar se vendedor existe
-    const usuarioExiste = usuariosMock.find(u => u.id === vendedor);
-    if (!usuarioExiste) {
-        return res.status(400).json({ error: "Vendedor não encontrado" });
+    console.log(`✅ Carro encontrado: ${carro.marca} ${carro.modelo}`);
+    res.json(carro);
+});
+
+// Cadastrar novo carro (autenticado)
+app.post("/api/carros", autenticar, (req: any, res: any) => {
+    console.log("📝 POST /api/carros - Recebido:", req.body);
+    
+    const { marca, modelo, ano, preco, quilometragem, cor, descricao, imagem } = req.body;
+    const userId = req.userId;
+    
+    // Validação
+    if (!marca || !modelo || !ano || !preco || !quilometragem || !cor) {
+        return res.status(400).json({ error: "Campos obrigatórios faltando" });
     }
     
     const novoCarro = {
         id: Date.now(),
-        marca: String(marca),
-        modelo: String(modelo),
+        marca,
+        modelo,
         ano: Number(ano),
         preco: Number(preco),
         quilometragem: Number(quilometragem),
-        cor: String(cor),
-        descricao: descricao ? String(descricao) : "",
-        vendedor: Number(vendedor),
-        imagem: imagem ? String(imagem) : "https://images.unsplash.com/photo-1563720223480-8ddab2319e1a?w=400"
+        cor,
+        descricao: descricao || "",
+        vendedor: userId,
+        imagem: imagem || "https://images.unsplash.com/photo-1563720223480-8ddab2319e1a?w=400"
     };
     
     carrosMock.push(novoCarro);
-    console.log("✅ Carro adicionado. Total:", carrosMock.length);
+    console.log(`✅ Carro adicionado por usuário ${userId}. Total:`, carrosMock.length);
     res.status(201).json(novoCarro);
 });
 
-app.delete("/api/carros/:id", (req, res) => {
+// Atualizar carro (autenticado - apenas dono)
+app.put("/api/carros/:id", autenticar, (req: any, res: any) => {
+    const carroId = parseInt(req.params.id);
+    console.log(`✏️ PUT /api/carros/${carroId} solicitado`);
+    console.log('📝 Dados recebidos:', req.body);
+    
+    const carroIndex = carrosMock.findIndex(c => c.id === carroId);
+    
+    if (carroIndex === -1) {
+        return res.status(404).json({ error: "Carro não encontrado" });
+    }
+    
+    const carro = carrosMock[carroIndex];
+    const userId = req.userId;
+    
+    // Verifica se o usuário é o dono
+    if (carro.vendedor !== userId) {
+        return res.status(403).json({ error: "Você não é o dono deste anúncio" });
+    }
+    
+    const atualizacoes = req.body;
+    // Remove campos que não podem ser atualizados
+    delete atualizacoes.id;
+    delete atualizacoes.vendedor;
+    
+    // Atualiza o carro
+    carrosMock[carroIndex] = { ...carro, ...atualizacoes };
+    
+    console.log(`✅ Carro ${carroId} atualizado por usuário ${userId}`);
+    res.json(carrosMock[carroIndex]);
+});
+
+// Remover carro (autenticado)
+app.delete("/api/carros/:id", autenticar, (req: any, res: any) => {
     const carroId = parseInt(req.params.id);
     console.log(`🗑️ DELETE /api/carros/${carroId} solicitado`);
     
-    // 1. Encontrar o carro
     const carroIndex = carrosMock.findIndex(c => c.id === carroId);
     
     if (carroIndex === -1) {
@@ -160,14 +246,18 @@ app.delete("/api/carros/:id", (req, res) => {
     }
     
     const carroRemovido = carrosMock[carroIndex];
+    const userId = req.userId;
     
-    // 2. Remover do array
+    // Opcional: verificar se é dono (comente para permitir qualquer um comprar)
+    // if (carroRemovido.vendedor !== userId) {
+    //     return res.status(403).json({ error: "Apenas o dono pode remover" });
+    // }
+    
     carrosMock.splice(carroIndex, 1);
     
-    console.log(`✅ Carro ${carroRemovido.marca} ${carroRemovido.modelo} removido`);
+    console.log(`✅ Carro ${carroRemovido.marca} ${carroRemovido.modelo} removido por usuário ${userId}`);
     console.log(`📊 Carros restantes: ${carrosMock.length}`);
     
-    // 3. Retornar confirmação
     res.status(200).json({
         success: true,
         message: `Carro ${carroRemovido.marca} ${carroRemovido.modelo} removido com sucesso`,
@@ -176,14 +266,48 @@ app.delete("/api/carros/:id", (req, res) => {
     });
 });
 
+// Comprar carro (alternativa com processamento)
+app.post("/api/carros/:id/comprar", autenticar, (req: any, res: any) => {
+    const carroId = parseInt(req.params.id);
+    const { compradorId } = req.body;
+    const userId = req.userId;
+    
+    console.log(`🛒 Tentativa de compra - Carro ID: ${carroId}, Comprador: ${compradorId || userId}`);
+    
+    const carroIndex = carrosMock.findIndex(c => c.id === carroId);
+    
+    if (carroIndex === -1) {
+        return res.status(404).json({ error: "Carro não encontrado" });
+    }
+    
+    const carro = carrosMock[carroIndex];
+    
+    // Processamento simulado
+    setTimeout(() => {
+        carrosMock.splice(carroIndex, 1);
+        
+        console.log(`✅ Carro ${carro.marca} ${carro.modelo} vendido para usuário ${userId}`);
+        
+        res.json({
+            success: true,
+            message: `🎉 Compra realizada com sucesso!`,
+            carro: carro,
+            compradorId: compradorId || userId,
+            dataCompra: new Date().toISOString(),
+            total: carro.preco
+        });
+    }, 1000); 
+});
 
-// GET - Listar usuários
-app.get("/api/usuarios", (req, res) => {
+// ========== ROTAS DE USUÁRIOS ==========
+
+// Listar usuários
+app.get("/api/usuarios", (req: any, res: any) => {
     res.json(usuariosMock);
 });
 
-// POST - Criar usuário
-app.post("/api/usuarios", (req, res) => {
+// Criar usuário (alternativa ao login automático)
+app.post("/api/usuarios", (req: any, res: any) => {
     const { nome, email } = req.body;
     const novoUsuario = {
         id: Date.now(),
@@ -194,23 +318,23 @@ app.post("/api/usuarios", (req, res) => {
     res.status(201).json(novoUsuario);
 });
 
-// Rota de saúde
-app.get("/", (req, res) => {
-    res.json({ 
-        message: "🚗 API CarHome (Backend Temporário) funcionando!",
-        status: "online",
-        carros_cadastrados: carrosMock.length,
-        usuarios_cadastrados: usuariosMock.length,
-        endpoints: {
-            "GET /api/carros": "Listar todos os carros",
-            "POST /api/carros": "Cadastrar novo carro",
-            "GET /api/usuarios": "Listar usuários",
-            "POST /api/usuarios": "Criar novo usuário"
-        }
+// ========== ROTAS AUXILIARES ==========
+
+// Teste de uploads
+app.get('/test-upload', (req: any, res: any) => {
+    res.json({
+        caminho: uploadsPath,
+        existe: fs.existsSync(uploadsPath),
+        arquivos: fs.existsSync(uploadsPath) ? fs.readdirSync(uploadsPath) : []
     });
 });
 
-// Iniciar servidor
+// Carros disponíveis (alias para /api/carros)
+app.get("/api/carros/disponiveis", (req: any, res: any) => {
+    res.json(carrosMock);
+});
+
+// ========== INICIALIZAÇÃO ==========
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log("=========================================");
@@ -219,49 +343,16 @@ app.listen(PORT, () => {
     console.log(`✅ Servidor rodando na porta ${PORT}`);
     console.log(`📊 ${carrosMock.length} carros carregados`);
     console.log(`👤 ${usuariosMock.length} usuários carregados`);
-    console.log(`🔗 Frontend deve apontar para: http://localhost:${PORT}/api/carros`);
-    console.log(`🌐 API Health: http://localhost:${PORT}`);
+    console.log(`🔗 Frontend: http://localhost:5173`);
+    console.log(`🔗 API: http://localhost:${PORT}/api/carros`);
+    console.log(`🌐 Health: http://localhost:${PORT}`);
     console.log("=========================================");
-});
-
-// ========== NOVA ROTA: COMPRAR CARRO ==========
-
-// POST - Comprar carro (simplificado)
-app.post("/api/carros/:id/comprar", (req, res) => {
-    const carroId = parseInt(req.params.id);
-    const { compradorId } = req.body;
-    
-    console.log(`🛒 Tentativa de compra - Carro ID: ${carroId}, Comprador: ${compradorId}`);
-    
-    // 1. Encontrar o carro
-    const carroIndex = carrosMock.findIndex(c => c.id === carroId);
-    
-    if (carroIndex === -1) {
-        return res.status(404).json({ error: "Carro não encontrado" });
-    }
-    
-    const carro = carrosMock[carroIndex];
-    
-    // 2. Simular processamento (em um sistema real, aqui teria validação de pagamento, etc)
-    setTimeout(() => {
-        // 3. Remover carro da lista (simula venda)
-        carrosMock.splice(carroIndex, 1);
-        
-        console.log(`✅ Carro ${carro.marca} ${carro.modelo} vendido para comprador ${compradorId}`);
-        
-        // 4. Retornar confirmação
-        res.json({
-            success: true,
-            message: `🎉 Compra realizada com sucesso!`,
-            carro: carro,
-            compradorId: compradorId,
-            dataCompra: new Date().toISOString(),
-            total: carro.preco
-        });
-    }, 1000); // Simula delay de processamento
-});
-
-// GET - Ver carros disponíveis (já existe, só lembrando)
-app.get("/api/carros/disponiveis", (req, res) => {
-    res.json(carrosMock);
+    console.log("📌 Rotas disponíveis:");
+    console.log("   GET    /api/carros");
+    console.log("   GET    /api/carros/:id");
+    console.log("   POST   /api/carros (auth)");
+    console.log("   PUT    /api/carros/:id (auth)");
+    console.log("   DELETE /api/carros/:id (auth)");
+    console.log("   POST   /api/login");
+    console.log("=========================================");
 });

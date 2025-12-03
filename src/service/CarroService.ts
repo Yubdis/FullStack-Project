@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { Carro } from '../entity/Carro';
 
 export class CarroService {
@@ -15,8 +15,16 @@ export class CarroService {
     return await this.repository.save(this.repository.create(carro));
   }
 
-  async listar(): Promise<Carro[]> {
-    return await this.repository.find({ relations: ['vendedor'] });
+  async listar(marca?: string): Promise<Carro[]> {
+    const options: FindManyOptions<Carro> = {
+       relations: ['vendedor'],
+     };
+
+    if (marca) {
+      options.where = { marca };
+    }
+
+    return await this.repository.find(options);
   }
 
   async buscarPorId(id: number): Promise<Carro> {

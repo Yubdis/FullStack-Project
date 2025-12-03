@@ -25,12 +25,18 @@ export class CarroController {
     }
   };
 
-  listar = async (_req: Request, res: Response): Promise<void> => {
+  listar = async (req: Request, res: Response): Promise<void> => {
     try {
-      const carros = await this.service.listar();
+      // 1. Extract the filter from the URL query parameters
+      const marca = req.query.marca as string | undefined;
+
+      // 2. Pass the filter to the service layer
+      const carros = await this.service.listar(marca);
+
       res.status(200).json(carros);
     } catch (err: any) {
-      res.status(500).json({ error: err.message || "Erro interno do servidor." });
+      const status = err?.code || 500;
+      res.status(status).json({ error: err?.message || "Erro interno do servidor." });
     }
   };
 
